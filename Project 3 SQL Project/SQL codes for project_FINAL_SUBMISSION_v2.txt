@@ -1,0 +1,67 @@
+/* Query 1 - query used for first insight */ --> 'Most popular music genre in the USA'
+
+SELECT
+  Genre.name AS Genre,
+  COUNT(InvoiceLine.TrackId) AS num_tracks_sold
+FROM Track
+JOIN Genre
+  ON Track.GenreId = Genre.GenreId
+JOIN InvoiceLine
+  ON InvoiceLine.TrackId = Track.TrackId
+JOIN Invoice
+  ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+JOIN MediaType
+  ON Track.MediaTypeId = MediaType.MediaTypeId
+WHERE Invoice.BillingCountry = 'USA'
+AND NOT MediaType.MediaTypeId = '3'
+GROUP BY Genre.GenreId
+ORDER BY 2 DESC;
+
+
+/* Query 2 - query used for first insight */ --> 'Top 10 selling products'
+
+SELECT 
+  Genre.Name Genre, 
+  Album.title Album, 
+  Track.Name track_name, 
+  SUM(InvoiceLine.UnitPrice*InvoiceLine.Quantity) AS total_spend
+FROM Genre
+JOIN Track
+  ON Genre.GenreId = Track.GenreId
+JOIN Album
+  ON Track.AlbumId = Album.AlbumId
+JOIN InvoiceLine
+  ON InvoiceLine.TrackId = Track.TrackId
+GROUP BY 3
+ORDER BY 4 DESC
+LIMIT 10;
+
+
+/* Query 3 - query used for first insight */ --> 'Top performing sales rep'
+
+SELECT
+  Employee.EmployeeId,
+  Employee.FirstName,
+  Employee.LastName,
+  SUM(Invoice.Total) AS Total
+FROM Invoice
+JOIN Customer
+  ON Invoice.CustomerId = Customer.CustomerId
+JOIN Employee
+  ON Employee.EmployeeId = Customer.SupportRepId
+GROUP BY 1;
+
+/* Query 4 - query used for first insight */ --> 'Video vs Audio sales'
+
+SELECT
+  CASE
+    WHEN MediaType.MediaTypeId = '3' THEN 'Video'
+    ELSE 'Audio'
+  END AS track_type,
+  SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS total_spent
+FROM Track
+JOIN MediaType
+  ON Track.MediaTypeId = MediaType.MediaTypeId
+JOIN InvoiceLine
+  ON Track.TrackId = InvoiceLine.TrackId
+GROUP BY 1;
